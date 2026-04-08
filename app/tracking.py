@@ -81,17 +81,15 @@ class DatasetRegistry:
     def _append_csv(self, record: dict) -> None:
         file_exists = os.path.exists(self.csv_path)
         fieldnames = sorted(record.keys())
+        rows = []
+        existing_fields = []
 
         if file_exists:
             with open(self.csv_path, "r", encoding="utf-8", newline="") as f:
                 reader = csv.DictReader(f)
                 existing_fields = reader.fieldnames or []
+                rows = list(reader)
             fieldnames = sorted(set(existing_fields).union(record.keys()))
-
-        rows = []
-        if file_exists:
-            with open(self.csv_path, "r", encoding="utf-8", newline="") as f:
-                rows = list(csv.DictReader(f))
 
         with open(self.csv_path, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)

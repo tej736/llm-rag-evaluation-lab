@@ -5,6 +5,7 @@ import requests
 import asyncio
 import numpy as np
 import time
+import logging
 from termcolor import colored
 from PyPDF2 import PdfReader
 from sklearn.metrics.pairwise import cosine_similarity
@@ -72,15 +73,18 @@ class Rag:
     def _parse_hf_embedding_response(self, result) -> list[float]:
         """Parse Hugging Face feature-extraction payloads to a single vector."""
         if isinstance(result, list) and result and isinstance(result[0], list):
+            # Handle batched token-level embeddings (batch_size, seq_len, dim)
             # Token-level vectors -> average pooling
             if result and result[0] and isinstance(result[0][0], list):
                 token_vectors = result[0]
             else:
+                # Handle single sequence token embeddings (seq_len, dim)
                 token_vectors = result
             arr = np.array(token_vectors, dtype=float)
             return arr.mean(axis=0).tolist()
 
         if isinstance(result, list):
+            # Handle direct embedding vector output (dim)
             return [float(v) for v in result]
 
         raise ValueError("Unexpected Hugging Face embedding response format")
@@ -328,6 +332,11 @@ class Rag:
             elif isinstance(result, dict) and "generated_text" in result:
                 text = result["generated_text"]
             else:
+                logging.warning(
+                    "Unexpected Hugging Face generation payload format for model %s: %s",
+                    model,
+                    type(result).__name__,
+                )
                 text = str(result)
 
             return {"text": text, "latency_seconds": latency, "usage": {}}
@@ -337,7 +346,8 @@ class Rag:
     def _build_hf_prompt(self, messages: list[dict]) -> str:
         """
         Build a generic role-tagged prompt for Hugging Face text-generation models.
-        This format is intentionally provider-agnostic and may be tuned per model family.
+        This format is intentionally provider-agnostic and may be tuned per model family
+        (e.g., ChatML/Llama-style templates for instruction-tuned checkpoints).
         """
         return "\n".join([f"{m['role']}: {m['content']}" for m in messages])
 

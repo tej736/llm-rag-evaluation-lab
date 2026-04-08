@@ -24,6 +24,9 @@ OPENAI_EMBED_MODELS = ["text-embedding-3-large", "text-embedding-3-small", "text
 OPENAI_LLM_MODELS = ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"]
 HF_EMBED_MODELS = ["sentence-transformers/all-MiniLM-L6-v2", "BAAI/bge-small-en-v1.5"]
 HF_LLM_MODELS = ["HuggingFaceH4/zephyr-7b-beta", "mistralai/Mistral-7B-Instruct-v0.2"]
+FAILURE_RESPONSE_PATTERN = (
+    "don't know|do not know|cannot answer|can't answer|insufficient information"
+)
 
 
 class RagWithRagasApp:
@@ -200,7 +203,7 @@ class RagWithRagasApp:
             provider=llm_provider,
         )
 
-        avg_similarity = (
+        avg_retrieval_score = (
             sum(item["score"] for item in top_chunks_with_scores) / len(top_chunks_with_scores)
             if top_chunks_with_scores
             else 0.0
@@ -219,7 +222,7 @@ class RagWithRagasApp:
             "top_k": top_k,
             "query": query,
             "retrieved_chunks_count": len(top_chunks),
-            "avg_similarity": round(avg_similarity, 4),
+            "avg_similarity": round(avg_retrieval_score, 4),
             "latency_seconds": round(answer_result["latency_seconds"], 4),
             "prompt_tokens": answer_result.get("usage", {}).get("prompt_tokens", ""),
             "completion_tokens": answer_result.get("usage", {}).get("completion_tokens", ""),
@@ -292,7 +295,7 @@ class RagWithRagasApp:
         )
         failures = query_runs[
             answer_series.str.lower().str.contains(
-                "don't know|do not know", regex=True, na=False
+                FAILURE_RESPONSE_PATTERN, regex=True, na=False
             )
         ]
         if failures.empty:
