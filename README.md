@@ -2,14 +2,6 @@
 
 A portfolio-grade, provider-agnostic RAG playground for comparing model stacks and evaluating retrieval quality with RAGAS.
 
-## Repository naming (recommended)
-
-If you want a clearer portfolio identity than `rag-with-ragas-example`, use one of these names:
-
-- `llm-rag-evaluation-lab` (recommended)
-- `provider-agnostic-rag-lab`
-- `rag-experiments-ragas-analytics`
-
 ## Why this fork stands out
 
 - Added **OpenAI + Hugging Face** support for both embeddings and generation
