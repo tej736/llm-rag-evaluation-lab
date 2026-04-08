@@ -1,257 +1,94 @@
-# LLM Evaluation & RAG Experimentation Lab 📚✅
+# LLM Evaluation & RAG Experimentation Lab
 
-Build, compare, and evaluate Retrieval-Augmented Generation (RAG) systems with provider-agnostic pipelines, RAGAS quality scoring, and analytics dashboards.
+A portfolio-grade, provider-agnostic RAG playground for comparing model stacks and evaluating retrieval quality with RAGAS.
 
-## Introduction
+## Repository naming (recommended)
 
-Retrieval Augmented Generation (RAG) enhances language models by grounding responses in retrieved context. This project now provides:
+If you want a clearer portfolio identity than `rag-with-ragas-example`, use one of these names:
 
-- OpenAI + Hugging Face provider support for both embeddings and generation
-- Side-by-side model/provider comparisons in Streamlit
-- RAGAS-based evaluation workflows
-- Experiment tracking with SQL-friendly outputs (`app/output/experiments/runs.csv`)
-- Plotly analytics for latency and quality drift across runs
-- Dataset ingestion/version metadata (`app/output/datasets`)
+- `llm-rag-evaluation-lab` (recommended)
+- `provider-agnostic-rag-lab`
+- `rag-experiments-ragas-analytics`
 
-## Project Structure
+## Why this fork stands out
 
-- `app/`: Main application directory
-  - `data/`: Folder for storing input documents (PDFs, TXTs)
-  - `output/`: Folder for storing processed data and evaluation results
-  - `rag.py`: Core RAG implementation
-  - `chat.py`: Interactive chat interface
-  - `eval.py`: RAGAS evaluation script
-  - `streamlit.py`: Streamlit web application
+- Added **OpenAI + Hugging Face** support for both embeddings and generation
+- Added **side-by-side experiment mode** in Streamlit to compare two RAG configurations
+- Added **RAGAS evaluation workflow** with configurable test-set distributions
+- Added **experiment tracking** (`runs.jsonl`, `runs.csv`) for query and eval runs
+- Added **dataset ingestion/version registry** (`manifest.jsonl`, `ingestions.csv`)
+- Added **analytics views** for latency, metric drift, and failure-case exploration
 
-## Prerequisites
+## Key capabilities
 
-- IDE (VSCode, PyCharm, Jupyter Notebook, etc.)
-- Python 3.10 or later
-- Anaconda (recommended)
-- Docker (optional)
-- OpenAI API Key (for OpenAI runs)
-- Hugging Face API Token (for Hugging Face runs)
+### 1) RAG query lab
+- Upload PDFs/TXTs and add URLs as sources
+- Configure chunking, overlap, token model, top-k retrieval
+- Run one config or two configs side-by-side
+- Inspect retrieved chunks with similarity scores
 
-## Quick Start
+### 2) RAGAS evaluation lab
+- Generate evaluation test sets with custom simple/reasoning/multi-context distributions
+- Score runs on context relevancy, context precision, context recall, faithfulness, and answer relevancy
+- Persist results to CSV for reproducible comparisons
 
-If you meet all of the above requirements, you could launch the RAG with RAGAS Evaluation streamlit app locally by running the following command:
+### 3) Experiment analytics
+- Track all run metadata and outputs in SQL-friendly artifacts
+- Visualize latency by provider/model and quality drift across eval runs
+- Export run history CSV and markdown experiment summary
+
+## Project structure
+
+- `app/rag.py` – provider-agnostic embedding/generation + retrieval logic
+- `app/eval.py` – RAGAS test-set generation and evaluation pipeline
+- `app/streamlit.py` – interactive lab UI + analytics dashboard
+- `app/tracking.py` – experiment tracker and dataset registry
+- `app/data/` – local source documents
+- `app/output/` – generated artifacts and experiment outputs
+- `tests/` – config/tracking unit tests
+
+## Getting started
+
+### Option A: Docker (recommended)
 
 ```sh
-   docker compose up --build
+docker compose up --build
 ```
 
-Access Local URL: http://localhost:8080
+Open: http://localhost:8080
 
-You can enter `OPENAI_API_KEY` and/or `HUGGINGFACE_API_TOKEN` in the sidebar.
-
-Coming soon: A deployed basic RAG with RAGAS Streamlit App can be accessed directly at http:// (bring your own key).
-
-## Setting up Conda Environment and Installing Requirements
-
-To set up the Conda environment and install the required packages, follow these steps:
-
-1. **Create a new Conda environment:**
-
-   ```sh
-   conda create --name rag_env python=3.10
-   ```
-
-2. **Activate the Conda environment:**
-
-   ```sh
-   conda activate rag_env
-   ```
-
-3. **Install the required packages:**
-
-   ```sh
-   pip install -r requirements.txt
-   ```
-
-## Setting Up Environment Variables
-
-Before running the application, ensure you have set API credentials in a `.env` file in the root directory of your project.
-
-1. **Create a `.env` file in the root directory:**
-
-   ```sh
-   touch .env
-   ```
-
-2. **Add your provider keys to the `.env` file:**
-
-   ```sh
-   echo "OPENAI_API_KEY=your_openai_api_key_here" >> .env
-   echo "HUGGINGFACE_API_TOKEN=your_huggingface_token_here" >> .env
-   ```
-
-Replace placeholders with your actual credentials.
-
-The app supports provider/model selection directly in Streamlit for OpenAI and Hugging Face.
-
-**3. Run these 3 commands to check the application components:**
+### Option B: Local Python setup
 
 ```sh
-python -m app.chat
-python -m app.eval
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 streamlit run app/streamlit.py
 ```
 
-If everything is set up correctly, you should see the application components running without any errors. Follow Docker Instructions if your system is incompatible.
+## Environment variables
 
-### Docker Instructions
-
-#### Build and Run Docker Image
-
-1. **Build the Docker Image Locally:**
-
-   For Windows:
-
-   ```sh
-   docker build -t rag-ragas-test .
-   ```
-
-   For Mac Silicon (M1, M2, M3, M4):
-
-   ```sh
-   docker buildx build --platform linux/amd64 -t rag-ragas-test . --load
-   ```
-
-2. **Verify the Image Exists Locally:**
-
-   ```sh
-   docker images
-   ```
-
-3. **Run the Docker Container:**
-
-   ```sh
-   docker run -p 8080:8080 rag-ragas-test
-   ```
-
-#### Using Docker Compose (Recommended)
-
-1. **Build and Start the Docker Compose Services:**
-
-   ```sh
-   docker compose up --build
-   ```
-
-2. **Restart a Previous Build:**
-
-   ```sh
-   docker compose up
-   ```
-
-3. **End the Docker Compose Session:**
-
-   ```sh
-   docker compose down
-   ```
-
-## Components
-
-### RAG Pipeline (rag.py)
-
-The `Rag` class in `rag.py` is the core of the RAG system. It handles:
-
-- Text processing and chunking
-- Embedding generation
-- Similarity search
-- Integration with OpenAI and Hugging Face inference APIs
-
-### Chat Interface (chat.py)
-
-The chat interface allows you to:
-
-- Process local files (PDFs and TXTs)
-- Add URLs for processing
-- Perform searches on the embedded data
-- Interact with the RAG system
-- Currently, the only inputs are query and top-k
-
-Usage:
+Set one or both depending on the provider you use:
 
 ```sh
-python -m app.chat
+OPENAI_API_KEY=your_openai_key
+HUGGINGFACE_API_TOKEN=your_hf_token
 ```
 
-Special attribution for the modular rag with chat is due to the incomparable Mr. echohive [echohive | Building AI powered apps | Patreon](https://www.patreon.com/echohive42/posts).
+## Reproducible outputs
 
-### RAGAS Evaluation (eval.py)
+- Query/eval run logs: `app/output/experiments/runs.jsonl`, `app/output/experiments/runs.csv`
+- Dataset ingestion registry: `app/output/datasets/manifest.jsonl`, `app/output/datasets/ingestions.csv`
+- Evaluation artifacts: `app/output/testset.csv`, `app/output/generated_dataset.csv`, `app/output/evaluation_results.csv`
 
-The evaluation script uses RAGAS to assess the RAG pipeline's performance. It measures:
-
-- Context Relevancy
-- Context Precision
-- Context Recall
-- Faithfulness
-- Answer Relevancy
-
-Usage:
+## Validation
 
 ```sh
-python -m app.eval
+python -m compileall app tests
+python -m unittest discover -s tests -v
 ```
-
-### Streamlit App (streamlit.py)
-
-The Streamlit app provides a web interface for:
-
-- Uploading documents
-- Configuring RAG parameters
-- Running queries
-- Viewing retrieved contexts
-- Performing RAGAS evaluation
-
-Usage:
-
-```sh
-streamlit run app/streamlit.py
-```
-
-## Customizing the RAG Pipeline
-
-You can customize the RAG pipeline by modifying the following parameters in the Streamlit app or directly in the code:
-
-- Language Model (e.g., gpt-4-turbo, gpt-3.5-turbo)
-- Embedding Model (e.g., text-embedding-3-large)
-- Chunk Size and Overlap
-- Top-K results for retrieval
-
-## Troubleshooting
-
-- **OpenAI API Key Issues**: Ensure your API key is correctly set in the `.env` file or passed as an environment variable.
-- **Docker Connection Errors**: Check if the correct ports are exposed and mapped.
-- **Out of Memory Errors**: Try reducing the chunk size or the number of documents processed at once.
-
-## Reproducibility, Cloud, and Data Platform Hooks
-
-- **Reproducible runs**: Every query/eval run is persisted to `app/output/experiments/runs.jsonl` and `app/output/experiments/runs.csv`.
-- **Dataset version metadata**: Ingestion metadata is tracked in `app/output/datasets/manifest.jsonl` and `app/output/datasets/ingestions.csv`.
-- **Containerized local deployment**: Use `docker compose up --build` for reproducible local setup.
-- **Azure/Databricks integration path (optional)**:
-  - Sync `runs.csv` and `ingestions.csv` into Azure Blob/Data Lake for archival.
-  - Ingest experiment CSV outputs into Databricks Delta tables for advanced analysis.
-  - Build dashboards from these SQL-friendly outputs in your preferred BI stack.
-
-## Contributing
-
-Contributions to this project are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a new branch for your feature
-3. Commit your changes
-4. Push to your branch
-5. Create a pull request
 
 ## Acknowledgements
 
-This project has been inspired and built upon the work of brilliant and generous individuals, namely:
-
 - [Modular Rag and chat implementation from URLs, PDFs and txt files. | Patreon](https://www.patreon.com/posts/modular-rag-and-106461497)
 - [Coding-Crashkurse/RAG-Evaluation-with-Ragas](https://github.com/Coding-Crashkurse/RAG-Evaluation-with-Ragas)
-
-## Additional Information
-
-For more details on RAGAS, refer to the [RAGAS Documentation](https://docs.ragas.io/en/stable/).
